@@ -1,4 +1,4 @@
-window.APP_CONFIG = {
+{
   "businessName": "Flames Shawarma and Grill",
   "tagline": "We don't compromise standard.",
   "heroTitle": "Order your meals in <span>one page</span>.",
@@ -145,6 +145,15 @@ window.APP_CONFIG = {
       "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=800&q=80",
       "description": "Spicy and crispy wings, perfect as a side or snack.",
       "popular": false
+    },
+    {
+      "id": 1774522397109,
+      "name": "Test",
+      "category": "Cat",
+      "price": 1000,
+      "image": "",
+      "description": "",
+      "popular": false
     }
   ]
-};
+}

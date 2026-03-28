@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flames Admin Command Center</title>
+  <style>
+    :root {
+      --bg: #050b16;
+      --bg-2: #081223;
+      --panel: rgba(10, 19, 35, 0.88);
+      --panel-strong: rgba(8, 16, 30, 0.96);
+      --line: rgba(125, 211, 252, 0.14);
+      --text: #eaf2ff;
+      --muted: #92a7c6;
+      --accent: #38bdf8;
+      --accent-2: #0ea5e9;
+      --accent-3: #8b5cf6;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(139, 92, 246, 0.15), transparent 30%),
+        linear-gradient(180deg, #030712 0%, #07111f 42%, #081423 100%);
+    }
+    .shell { max-width: 1680px; margin: 0 auto; }
+    .hero, .panel, .card, .summary-card, .table-wrap {
+      border-radius: var(--radius);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding: 28px;
+      margin-bottom: 18px;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(56,189,248,0.14), rgba(14,165,233,0.04) 50%, rgba(139,92,246,0.12));
+      pointer-events: none;
+    }
+    .hero > * { position: relative; z-index: 1; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      color: #cceeff;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 14px;
+    }
+    .hero h1 { font-size: clamp(2rem, 3vw, 3rem); margin-bottom: 10px; }
+    .hero p { max-width: 860px; color: var(--muted); line-height: 1.7; }
+    .hero-badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .chip {
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.08);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .button-row, .tab-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn {
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.2s ease;
+      color: var(--text);
+      background: rgba(148, 163, 184, 0.08);
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #03101b; box-shadow: 0 16px 34px rgba(14, 165, 233, 0.28); }
+    .btn-secondary { background: rgba(148, 163, 184, 0.08); border-color: rgba(148, 163, 184, 0.18); }
+    .btn-accent { background: linear-gradient(135deg, var(--accent-3), #6366f1); color: white; box-shadow: 0 16px 34px rgba(99, 102, 241, 0.28); }
+    .btn-danger { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.25); color: #fecaca; }
+    .btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+    .tabs-wrap { margin-bottom: 18px; }
+    .tab-btn {
+      padding: 12px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,0.18);
+      background: rgba(8,16,30,0.9);
+      color: var(--muted);
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      color: #03101b;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 16px 34px rgba(14, 165, 233, 0.2);
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .card { padding: 20px; background: linear-gradient(180deg, rgba(11, 24, 43, 0.95), rgba(7, 15, 27, 0.95)); }
+    .card h3 { color: var(--muted); font-size: 12px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .card strong { display: block; font-size: 30px; margin-bottom: 8px; }
+    .card small { color: #afc2df; }
+
+    .panel { padding: 20px; margin-bottom: 18px; }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .panel-head h2 { font-size: 1.15rem; margin-bottom: 4px; }
+    .panel-head p, .note, .footer-note { color: var(--muted); }
+    .footer-note { margin-top: 12px; font-size: 13px; }
+
+    .filters { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+    .range-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+    .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: #d9e6fb; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(6, 14, 27, 0.95);
+      color: var(--text);
+      padding: 13px 14px;
+      outline: none;
+    }
+    .field textarea { min-height: 92px; resize: vertical; }
+    .field input::placeholder, .field textarea::placeholder { color: #7e93b2; }
+
+    .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .summary-card { padding: 18px; background: linear-gradient(180deg, rgba(10, 19, 35, 0.98), rgba(6, 12, 22, 0.98)); }
+    .summary-card h3 { margin-bottom: 10px; }
+    .summary-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .summary-meta p { padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(148,163,184,0.08); }
+    .summary-meta span { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .summary-meta strong { font-size: 18px; }
+
+    .content-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 18px; }
+    .mini-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(8,16,30,0.94);
+      border: 1px solid rgba(148,163,184,0.12);
+      margin-bottom: 14px;
+    }
+    .mini-card h3 { margin-bottom: 8px; }
+    .quick-links { display: grid; gap: 12px; }
+
+    .table-wrap { padding: 18px; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; min-width: 1200px; border-collapse: collapse; }
+    th, td { padding: 14px 12px; border-bottom: 1px solid rgba(148,163,184,0.12); text-align: left; vertical-align: top; }
+    th { color: #d8e8ff; font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; background: rgba(255,255,255,0.02); position: sticky; top: 0; }
+    td { color: #eff6ff; font-size: 14px; }
+    td.wrap, .items-cell div { white-space: normal; }
+    .empty-state { color: var(--muted); text-align: center; padding: 20px; }
+    .muted { color: var(--muted); }
+    .amount-box { display: grid; gap: 6px; }
+    .amount-box small { color: var(--muted); display: block; }
+    .badge { display: inline-flex; align-items: center; justify-content: center; padding: 7px 11px; border-radius: 999px; font-size: 12px; font-weight: 800; text-transform: capitalize; }
+    .status-pending { background: rgba(245, 158, 11, 0.14); color: #fcd34d; }
+    .status-preparing { background: rgba(56, 189, 248, 0.14); color: #7dd3fc; }
+    .status-completed { background: rgba(34, 197, 94, 0.14); color: #86efac; }
+    .status-delivered { background: rgba(16, 185, 129, 0.16); color: #99f6e4; }
+    .status-cancelled { background: rgba(239, 68, 68, 0.14); color: #fda4af; }
+    .receipt-valid { background: rgba(34, 197, 94, 0.14); color: #86efac; }
+    .receipt-pending_validation { background: rgba(245, 158, 11, 0.14); color: #fcd34d; }
+    .receipt-not_required { background: rgba(148, 163, 184, 0.14); color: #cbd5e1; }
+
+    .manager-table input, .manager-table select {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.16);
+      background: rgba(6, 14, 27, 0.95);
+      color: var(--text);
+      padding: 10px 12px;
+    }
+    .manager-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .manager-actions button { padding: 9px 12px; border-radius: 12px; }
+    .section-label {
+      display: inline-flex;
+      margin-bottom: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #bbddff;
+    }
+    a { color: #7dd3fc; }
+
+    @media (max-width: 1200px) {
+      .stats, .filters, .content-grid, .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      .stats, .filters, .content-grid, .summary-grid { grid-template-columns: 1fr; }
+      body { padding: 14px; }
+      .hero { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="apiStatusBar" style="display:none;padding:12px 16px;margin:16px 24px 0;border-radius:14px;background:#3b0b0b;color:#ffd9d9;border:1px solid rgba(239,68,68,.35);font-weight:600;"></div>
+  <div class="shell">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Admin Command Center</div>
+        <h1>Manage branches and transaction history from one place.</h1>
+        <p>The main admin dashboard controls all branches, tracks sales visibility, and lets you monitor downloadable records. It stays visually different from the branch dashboards so operations are clearer.</p>
+        <div class="hero-badges">
+          <span class="chip">Multi-branch control</span>
+          <span class="chip">Filtered transaction exports</span>
+        </div>
+      </div>
+      <div class="button-row">
+        <button id="enableSoundBtn" class="btn btn-primary" type="button">Enable Notification Sound</button>
+        <button id="refreshBtn" class="btn btn-secondary" type="button">Refresh Data</button>
+        <button id="downloadCsvBtn" class="btn btn-accent" type="button">Download CSV</button>
+      </div>
+    </div>
+
+    <div class="tabs-wrap panel" style="padding:16px;">
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="overviewTab" type="button">Overview & Branch Sales</button>
+        <button class="tab-btn" data-tab="transactionsTab" type="button">Transaction History</button>
+      </div>
+    </div>
+
+    <section id="overviewTab" class="tab-pane active">
+      <div class="stats">
+        <div class="card"><h3>Total Orders</h3><strong id="totalOrders">0</strong><small>All branches combined</small></div>
+        <div class="card"><h3>Pending</h3><strong id="pendingOrders">0</strong><small>Needs action</small></div>
+        <div class="card"><h3>Preparing</h3><strong id="preparingOrders">0</strong><small>In progress</small></div>
+        <div class="card"><h3>Delivered</h3><strong id="deliveredOrders">0</strong><small>Fulfilled orders</small></div>
+        <div class="card"><h3>Total Sales</h3><strong id="totalSales">₦0</strong><small>Excludes cancelled</small></div>
+      </div>
+
+      <div class="content-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <span class="section-label">Branch Performance</span>
+              <h2>Branch Sales Report</h2>
+              <p>Live performance summary from every branch currently online.</p>
+            </div>
+          </div>
+          <div id="branchSummaryGrid" class="summary-grid"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <span class="section-label">Admin Layout</span>
+              <h2>Main Admin Tools</h2>
+              <p>This dashboard now focuses only on branch performance and transaction records.</p>
+            </div>
+          </div>
+          <div class="quick-links">
+            <div class="mini-card">
+              <h3>1. Overview & Branch Sales</h3>
+              <p class="note">See branch totals, order counts, delivery progress, and overall sales at a glance.</p>
+            </div>
+            <div class="mini-card">
+              <h3>2. Transaction History</h3>
+              <p class="note">Filter, view, and download past transaction records with date presets and sales search controls.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="transactionsTab" class="tab-pane">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <span class="section-label">History Filters</span>
+            <h2>Transaction View Controls</h2>
+            <p>Select how you want to see past transaction records before you export them.</p>
+          </div>
+        </div>
+        <div class="filters">
+          <div class="field">
+            <label for="viewPreset">Record View</label>
+            <select id="viewPreset">
+              <option value="all">All records</option>
+              <option value="today">Today</option>
+              <option value="last7">Last 7 days</option>
+              <option value="last30">Last 30 days</option>
+              <option value="thisMonth">This month</option>
+            </select>
+          </div>
+          <div class="field"><label for="branchFilter">Branch</label><select id="branchFilter"><option value="all">All branches</option></select></div>
+          <div class="field"><label for="statusFilter">Status</label><select id="statusFilter"><option value="all">All statuses</option><option value="pending">Pending</option><option value="preparing">Preparing</option><option value="completed">Completed</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select></div>
+          <div class="field"><label for="paymentFilter">Payment</label><select id="paymentFilter"><option value="all">All payment methods</option><option value="cash">Cash</option><option value="bank_transfer">Bank Transfer</option></select></div>
+          <div class="field"><label for="searchInput">Search</label><input id="searchInput" type="text" placeholder="Search customer, phone, area, note..." /></div>
+          <div class="field" style="align-self:end;"><label>&nbsp;</label><button id="resetFiltersBtn" class="btn btn-secondary" type="button">Reset Filters</button></div>
+        </div>
+        <div class="range-row">
+          <div class="field" style="min-width:220px;"><label for="startDate">Start Date</label><input id="startDate" type="date" /></div>
+          <div class="field" style="min-width:220px;"><label for="endDate">End Date</label><input id="endDate" type="date" /></div>
+        </div>
+        <div class="footer-note">Choose a preset or custom date range, combine it with branch or payment filters, then download the visible results as CSV.</div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="panel-head">
+          <div>
+            <h2>Transaction History</h2>
+            <div class="note" id="historySummary">Loading records...</div>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Branch</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Account Name</th>
+                <th>Order Type</th>
+                <th>Payment</th>
+                <th>Address / Area</th>
+                <th>Items</th>
+                <th>Amount Summary</th>
+                <th>Receipt Check</th>
+                <th>Status</th>
+                <th>Change Status</th>
+                <th>Receipt</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody"><tr><td colspan="15" class="empty-state">Loading orders...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const API_BASE_URL = window.location.protocol === 'file:' ? 'http://localhost:3000' : window.location.origin;
+    const apiUrl = path => `${API_BASE_URL}${path}`;
+
+    async function parseApiResponse(response, fallbackMessage) {
+      const text = await response.text();
+      let data = null;
+      if (text) {
+        try { data = JSON.parse(text); } catch {
+          if (!response.ok) throw new Error((text || fallbackMessage) + ' Use http://localhost:3000/admin.html after starting the backend if you are opening the files directly.');
+          throw new Error(fallbackMessage || 'Invalid server response.');
+        }
+      }
+      if (!response.ok) throw new Error(data?.message || text || fallbackMessage);
+      return data || {};
+    }
+
+    const password = prompt('Enter admin password');
+    if (password !== '1234') {
+      document.body.innerHTML = '<h1 style="color:white;font-family:Arial,sans-serif;padding:30px;">Access denied</h1>';
+      throw new Error('Access denied');
+    }
+
+    const els = {
+      totalOrders: document.getElementById('totalOrders'),
+      pendingOrders: document.getElementById('pendingOrders'),
+      preparingOrders: document.getElementById('preparingOrders'),
+      deliveredOrders: document.getElementById('deliveredOrders'),
+      totalSales: document.getElementById('totalSales'),
+      enableSoundBtn: document.getElementById('enableSoundBtn'),
+      refreshBtn: document.getElementById('refreshBtn'),
+      downloadCsvBtn: document.getElementById('downloadCsvBtn'),
+      branchSummaryGrid: document.getElementById('branchSummaryGrid'),
+      historySummary: document.getElementById('historySummary'),
+      ordersTableBody: document.getElementById('ordersTableBody'),
+      viewPreset: document.getElementById('viewPreset'),
+      branchFilter: document.getElementById('branchFilter'),
+      statusFilter: document.getElementById('statusFilter'),
+      paymentFilter: document.getElementById('paymentFilter'),
+      searchInput: document.getElementById('searchInput'),
+      startDate: document.getElementById('startDate'),
+      endDate: document.getElementById('endDate'),
+      resetFiltersBtn: document.getElementById('resetFiltersBtn'),
+    };
+
+    let soundEnabled = false;
+    let knownOrderIds = new Set();
+    let firstLoad = true;
+    let allOrders = [];
+    let filteredOrders = [];
+
+    function formatNaira(amount) {
+      return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(Number(amount || 0));
+    }
+    function formatDate(value) { return new Date(value).toLocaleString(); }
+    function formatDateOnly(value) { return new Date(value).toLocaleDateString(); }
+    function badge(status) { const safe = status || 'pending'; return `<span class="badge status-${safe}">${safe}</span>`; }
+    function receiptBadge(receiptCheck) {
+      const status = receiptCheck?.status || 'not_required';
+      const label = status === 'validated' ? 'Validated' : status.replace(/_/g, ' ');
+      const css = status === 'validated' ? 'receipt-valid' : `receipt-${status}`;
+      return `<span class="badge ${css}">${label}</span>`;
+    }
+
+    function beep() {
+      if (!soundEnabled) return;
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(910, ctx.currentTime);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.24);
+      } catch (error) {
+        console.log('Sound blocked:', error);
+      }
+    }
+
+    function initTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+      });
+    }
+
+    function updateBranchFilterOptions(orders) {
+      const current = els.branchFilter.value || 'all';
+      const branchMap = new Map();
+      orders.forEach(order => {
+        if (order.branchId && order.branchName) branchMap.set(String(order.branchId), order.branchName);
+      });
+
+      const options = ['<option value="all">All branches</option>'];
+      Array.from(branchMap.entries()).sort((a, b) => a[1].localeCompare(b[1])).forEach(([id, name]) => options.push(`<option value="${id}">${name}</option>`));
+      els.branchFilter.innerHTML = options.join('');
+      els.branchFilter.value = Array.from(branchMap.keys()).includes(current) || current === 'all' ? current : 'all';
+    }
+
+    function applyPresetDates() {
+      const preset = els.viewPreset.value;
+      const today = new Date();
+      const yyyyMmDd = date => date.toISOString().split('T')[0];
+      const start = new Date(today);
+      const end = new Date(today);
+      if (preset === 'all') { els.startDate.value = ''; els.endDate.value = ''; return; }
+      if (preset === 'today') { els.startDate.value = yyyyMmDd(start); els.endDate.value = yyyyMmDd(end); return; }
+      if (preset === 'last7') { start.setDate(today.getDate() - 6); els.startDate.value = yyyyMmDd(start); els.endDate.value = yyyyMmDd(end); return; }
+      if (preset === 'last30') { start.setDate(today.getDate() - 29); els.startDate.value = yyyyMmDd(start); els.endDate.value = yyyyMmDd(end); return; }
+      if (preset === 'thisMonth') { start.setDate(1); els.startDate.value = yyyyMmDd(start); els.endDate.value = yyyyMmDd(end); }
+    }
+
+    function getFilteredOrders() {
+      const branchValue = els.branchFilter.value;
+      const statusValue = els.statusFilter.value;
+      const paymentValue = els.paymentFilter.value;
+      const query = els.searchInput.value.trim().toLowerCase();
+      const startValue = els.startDate.value;
+      const endValue = els.endDate.value;
+      return allOrders.filter(order => {
+        if (branchValue !== 'all' && String(order.branchId) !== String(branchValue)) return false;
+        if (statusValue !== 'all' && order.status !== statusValue) return false;
+        if (paymentValue !== 'all' && order.paymentMethod !== paymentValue) return false;
+        if (startValue || endValue) {
+          const created = new Date(order.createdAt);
+          const createdDateOnly = new Date(created.getFullYear(), created.getMonth(), created.getDate());
+          if (startValue) {
+            const startDate = new Date(startValue + 'T00:00:00');
+            if (createdDateOnly < startDate) return false;
+          }
+          if (endValue) {
+            const endDate = new Date(endValue + 'T00:00:00');
+            if (createdDateOnly > endDate) return false;
+          }
+        }
+        if (query) {
+          const haystack = [order.id, order.customerName, order.customerPhone, order.customerAccountName, order.branchName, order.orderType, order.paymentMethod, order.deliveryAddress, order.deliveryArea, order.orderNote].join(' ').toLowerCase();
+          if (!haystack.includes(query)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderHistory(orders) {
+      filteredOrders = orders;
+      if (!orders.length) {
+        els.ordersTableBody.innerHTML = '<tr><td colspan="15" class="empty-state">No transaction records match this view.</td></tr>';
+        els.historySummary.textContent = '0 records found for the selected transaction view.';
+        return;
+      }
+      const totalAmount = orders.filter(order => order.status !== 'cancelled').reduce((sum, order) => sum + Number(order.finalTotal || order.totalAmount || 0), 0);
+      const firstDate = orders[orders.length - 1]?.createdAt;
+      const lastDate = orders[0]?.createdAt;
+      els.historySummary.textContent = `${orders.length} records found • ${formatNaira(totalAmount)} total in this view • ${firstDate ? formatDateOnly(firstDate) : '-'} to ${lastDate ? formatDateOnly(lastDate) : '-'}`;
+
+      els.ordersTableBody.innerHTML = orders.map(order => `
+        <tr>
+          <td>#${order.id}</td>
+          <td><div>${formatDate(order.createdAt)}</div><small class="muted">${order.updatedAt ? `Updated: ${formatDate(order.updatedAt)}` : ''}</small></td>
+          <td>${order.branchName || '-'}</td>
+          <td><div><strong>${escapeHtml(order.customerName || '-')}</strong></div><small class="muted">${escapeHtml(order.orderNote || 'No note')}</small></td>
+          <td>${escapeHtml(order.customerPhone || '-')}</td>
+          <td>${escapeHtml(order.customerAccountName || '-')}</td>
+          <td>${escapeHtml(order.orderType || '-')}</td>
+          <td>${escapeHtml(order.paymentMethod || '-')}</td>
+          <td class="wrap"><div>${escapeHtml(order.deliveryAddress || '-')}</div><small class="muted">${escapeHtml(order.deliveryArea || 'No area selected')}</small></td>
+          <td class="items-cell">${(order.cart || []).length ? order.cart.map(item => `<div>${escapeHtml(item.name)} x${escapeHtml(String(item.quantity))}</div>`).join('') : '-'}</td>
+          <td><div class="amount-box"><div><strong>${formatNaira(order.finalTotal || order.totalAmount || 0)}</strong></div><small>Subtotal: ${formatNaira(order.subtotal || order.totalAmount || 0)}</small><small>Delivery: ${formatNaira(order.deliveryFee || 0)}</small></div></td>
+          <td class="wrap">${receiptBadge(order.receiptCheck)}<div style="margin-top:8px;">${escapeHtml(order.receiptCheck?.message || '-')}</div></td>
+          <td>${badge(order.status)}</td>
+          <td>
+            <select data-id="${order.id}" class="status-select">
+              <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparing</option>
+              <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
+              <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+              <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+          </td>
+          <td>${order.receiptUrl ? `<a href="${order.receiptUrl}" target="_blank">Open Receipt</a>` : 'No Receipt'}</td>
+        </tr>
+      `).join('');
+
+      document.querySelectorAll('.status-select').forEach(select => {
+        select.addEventListener('change', async () => {
+          try {
+            await updateOrderStatus(select.dataset.id, select.value);
+            await Promise.all([loadOrders(), loadSummary()]);
+          } catch (error) {
+            alert(error.message);
+          }
+        });
+      });
+    }
+
+
+
+
+
+
+
+
+
+
+
+    async function updateOrderStatus(orderId, status) {
+      const response = await fetch(apiUrl(`/api/orders/${orderId}/status`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      await parseApiResponse(response, 'Could not update status.');
+    }
+
+    async function loadSummary() {
+      const response = await fetch(apiUrl('/api/admin/summary'));
+      const data = await parseApiResponse(response, 'Could not load summary.');
+      const overall = data.overall || {};
+      els.totalOrders.textContent = overall.totalOrders || 0;
+      els.pendingOrders.textContent = overall.pendingOrders || 0;
+      els.preparingOrders.textContent = overall.preparingOrders || 0;
+      els.deliveredOrders.textContent = overall.deliveredOrders || 0;
+      els.totalSales.textContent = formatNaira(overall.totalSales || 0);
+
+      const branches = data.branches || [];
+      els.branchSummaryGrid.innerHTML = branches.length ? branches.map(branch => `
+        <div class="summary-card">
+          <h3>${escapeHtml(branch.branchName)}</h3>
+          <div class="summary-meta">
+            <p><span>Total Orders</span><strong>${branch.totalOrders}</strong></p>
+            <p><span>Pending</span><strong>${branch.pendingOrders}</strong></p>
+            <p><span>Preparing</span><strong>${branch.preparingOrders}</strong></p>
+            <p><span>Completed</span><strong>${branch.completedOrders}</strong></p>
+            <p><span>Delivered</span><strong>${branch.deliveredOrders}</strong></p>
+            <p><span>Total Sales</span><strong>${formatNaira(branch.totalSales)}</strong></p>
+          </div>
+        </div>
+      `).join('') : '<div class="summary-card">No branch summary yet.</div>';
+    }
+
+    async function loadOrders() {
+      const response = await fetch(apiUrl('/api/admin/orders'));
+      const orders = await parseApiResponse(response, 'Could not load orders.');
+      allOrders = orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const currentIds = new Set(allOrders.map(order => String(order.id)));
+      if (!firstLoad) {
+        for (const order of allOrders) {
+          if (!knownOrderIds.has(String(order.id))) { beep(); break; }
+        }
+      }
+      knownOrderIds = currentIds;
+      firstLoad = false;
+      updateBranchFilterOptions(allOrders);
+      renderHistory(getFilteredOrders());
+    }
+
+    function exportCsv() {
+      if (!filteredOrders.length) { alert('No transaction records to download for this view.'); return; }
+      const rows = [[ 'Order ID','Date','Branch','Customer','Phone','Account Name','Order Type','Payment','Address','Area','Note','Items','Subtotal','Delivery Fee','Final Total','Receipt Check','Receipt Message','Status','Receipt URL' ]];
+      filteredOrders.forEach(order => {
+        rows.push([
+          order.id, formatDate(order.createdAt), order.branchName || '', order.customerName || '', order.customerPhone || '', order.customerAccountName || '', order.orderType || '', order.paymentMethod || '', order.deliveryAddress || '', order.deliveryArea || '', order.orderNote || '', (order.cart || []).map(item => `${item.name} x${item.quantity}`).join(' | '), Number(order.subtotal || order.totalAmount || 0), Number(order.deliveryFee || 0), Number(order.finalTotal || order.totalAmount || 0), order.receiptCheck?.status || '', order.receiptCheck?.message || '', order.status || '', order.receiptUrl || ''
+        ]);
+      });
+      const csv = rows.map(row => row.map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+      link.href = url;
+      link.download = `admin-transaction-history-${stamp}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function resetFilters() {
+      els.viewPreset.value = 'all';
+      els.branchFilter.value = 'all';
+      els.statusFilter.value = 'all';
+      els.paymentFilter.value = 'all';
+      els.searchInput.value = '';
+      els.startDate.value = '';
+      els.endDate.value = '';
+      renderHistory(getFilteredOrders());
+    }
+
+    function bindEvents() {
+      [els.branchFilter, els.statusFilter, els.paymentFilter, els.searchInput, els.startDate, els.endDate].forEach(el => {
+        el.addEventListener('input', () => renderHistory(getFilteredOrders()));
+        el.addEventListener('change', () => renderHistory(getFilteredOrders()));
+      });
+      els.viewPreset.addEventListener('change', () => { applyPresetDates(); renderHistory(getFilteredOrders()); });
+      els.resetFiltersBtn.addEventListener('click', resetFilters);
+      els.downloadCsvBtn.addEventListener('click', exportCsv);
+      els.refreshBtn.addEventListener('click', async () => { await Promise.all([loadSummary(), loadOrders()]); });
+      els.enableSoundBtn.addEventListener('click', () => { soundEnabled = true; beep(); els.enableSoundBtn.textContent = 'Sound Enabled'; els.enableSoundBtn.disabled = true; });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    initTabs();
+    bindEvents();
+    Promise.all([loadSummary(), loadOrders()]);
+    setInterval(async () => { await Promise.all([loadSummary(), loadOrders()]); }, 5000);
+  </script>
+</body>
+</html>

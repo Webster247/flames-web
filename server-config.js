@@ -1,1 +1,1 @@
-export const APP_CONFIG={businessName:"Client Food Brand"};
+export const APP_CONFIG={Flamesshawarmaandgrill: "people best fast food restaurant"};

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Awoyaya Branch Dashboard</title>
+  <style>
+    :root {
+      --bg:#080808;
+      --bg-soft:#111111;
+      --panel:#161616;
+      --panel-2:#1c1c1c;
+      --line:rgba(255,255,255,.08);
+      --text:#fff7f1;
+      --muted:#d7cfc9;
+      --red:#e11d2e;
+      --orange:#f97316;
+      --yellow:#facc15;
+      --success:#22c55e;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      --radius:20px;
+      --shadow:0 22px 54px rgba(0,0,0,.34);
+      --accent:linear-gradient(135deg,#facc15 0%,#f97316 52%,#e11d2e 100%);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:Inter,Arial,sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(250,204,21,.14), transparent 22%),
+        radial-gradient(circle at top right, rgba(249,115,22,.12), transparent 24%),
+        linear-gradient(180deg,#050505 0%,#0b0b0b 34%,#111111 100%);
+      color:var(--text);
+      min-height:100vh;
+      padding:20px;
+    }
+    .shell{max-width:1600px;margin:0 auto}
+    .hero,.card,.table-wrap{background:linear-gradient(180deg,#171717,#101010);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero{position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;padding:26px;margin-bottom:18px}
+    .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(250,204,21,.12),rgba(249,115,22,.08),rgba(225,29,46,.12));pointer-events:none}
+    .hero>*{position:relative;z-index:1}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+    .eyebrow::before{content:"";width:10px;height:10px;border-radius:999px;background:var(--accent)}
+    h1{font-size:clamp(1.8rem,3vw,2.6rem);margin-bottom:8px}
+    .sub{color:var(--muted);line-height:1.6;max-width:760px}
+    .button-row{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{padding:11px 15px;border-radius:14px;border:1px solid transparent;cursor:pointer;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px}
+    .btn-primary{background:var(--accent);color:#fff;box-shadow:0 16px 34px rgba(249,115,22,.24)}
+    .btn-secondary{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);color:#fff}
+    .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}
+    .card{padding:20px}
+    .card h3{font-size:12px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em}
+    .card strong{font-size:30px;display:block}
+    .card small{display:block;color:#a9a09a;margin-top:8px}
+    .table-wrap{padding:16px;overflow:hidden}
+    .table-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .table-head p{color:var(--muted)}
+    .table-scroll{overflow:auto;border-radius:16px;border:1px solid rgba(255,255,255,.08)}
+    table{width:100%;min-width:1880px;border-collapse:collapse;background:#0d0d0d}
+    th,td{text-align:left;padding:12px;border-bottom:1px solid rgba(255,255,255,.08);font-size:14px;vertical-align:top}
+    th{background:#121212;white-space:nowrap;color:#d9cec6;text-transform:uppercase;letter-spacing:.05em;font-size:12px}
+    tbody tr:nth-child(odd){background:rgba(255,255,255,.015)}
+    tbody tr:hover{background:rgba(249,115,22,.06)}
+    .badge{display:inline-block;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800}
+    .status-pending{background:rgba(245,158,11,.15);color:#fbbf24}
+    .status-preparing{background:rgba(59,130,246,.16);color:#60a5fa}
+    .status-completed{background:rgba(34,197,94,.16);color:#4ade80}
+    .status-delivered{background:rgba(20,184,166,.16);color:#2dd4bf}
+    .status-cancelled{background:rgba(239,68,68,.16);color:#f87171}
+    .receipt-valid{background:rgba(34,197,94,.16);color:#4ade80}
+    .receipt-not_required{background:rgba(148,163,184,.16);color:#dbe4f2}
+    .receipt-pending_validation{background:rgba(245,158,11,.16);color:#fbbf24}
+    .receipt-invalid{background:rgba(239,68,68,.16);color:#f87171}
+    select{padding:9px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#121212;color:#fff}
+    a{color:#fda76a;text-decoration:none;font-weight:700}
+    .items-cell div{margin-bottom:6px;white-space:normal}
+    .receipt-note{min-width:240px;white-space:normal}
+    .wrap{white-space:normal;min-width:180px}
+    @media (max-width:1000px){.stats{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:700px){body{padding:14px} .stats{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Awoyaya Operations</div>
+        <h1>Awoyaya Branch Dashboard</h1>
+        <div class="sub">Only orders sent to Awoyaya Branch will appear here. This branch dashboard uses the brand fire theme, while the main admin dashboard keeps a different executive monitoring style.</div>
+      </div>
+      <div class="button-row">
+        <button id="enableSoundBtn" class="btn btn-primary">Enable Notification Sound</button>
+        <a href="admin.html" class="btn btn-secondary">Main Admin Dashboard</a>
+        <a href="branch-ajah.html" class="btn btn-secondary">Ajah Dashboard</a>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="card"><h3>Total Orders</h3><strong id="totalOrders">0</strong><small>Only this branch</small></div>
+      <div class="card"><h3>Pending</h3><strong id="pendingOrders">0</strong><small>Awaiting action</small></div>
+      <div class="card"><h3>Preparing</h3><strong id="preparingOrders">0</strong><small>In production</small></div>
+      <div class="card"><h3>Delivered</h3><strong id="deliveredOrders">0</strong><small>Fulfilled orders</small></div>
+      <div class="card"><h3>Total Sales</h3><strong id="totalSales">₦0</strong><small>Completed branch value</small></div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-head">
+        <div>
+          <h2>Branch Transaction Queue</h2>
+          <p>Well-arranged order records for Awoyaya Branch.</p>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Order ID</th><th>Customer</th><th>Phone</th><th>Payer Account Name</th><th>Type</th><th>Payment</th><th>Address</th><th>Area</th><th>Note</th><th>Items</th><th>Total</th><th>Receipt Check</th><th>Status</th><th>Change Status</th><th>Receipt</th><th>Date</th></tr>
+          </thead>
+          <tbody id="ordersTableBody"><tr><td colspan="16">Loading orders...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = window.location.protocol === 'file:' ? 'http://localhost:3000' : window.location.origin;
+    const apiUrl = path => `${API_BASE_URL}${path}`;
+    async function parseApiResponse(response, fallbackMessage) {
+      const text = await response.text();
+      let data = null;
+      if (text) {
+        try { data = JSON.parse(text); } catch {
+          if (!response.ok) throw new Error(text || fallbackMessage);
+          throw new Error(fallbackMessage || 'Invalid server response.');
+        }
+      }
+      if (!response.ok) throw new Error(data?.message || text || fallbackMessage);
+      return data || {};
+    }
+    const BRANCH_ID = 'branch-1';
+    const password = prompt('Enter branch dashboard password');
+    if (password !== '1234') {
+      document.body.innerHTML = '<h1 style="padding:30px;font-family:Arial,sans-serif;">Access denied</h1>';
+      throw new Error('Access denied');
+    }
+
+    const ordersTableBody = document.getElementById('ordersTableBody');
+    const totalOrdersEl = document.getElementById('totalOrders');
+    const pendingOrdersEl = document.getElementById('pendingOrders');
+    const preparingOrdersEl = document.getElementById('preparingOrders');
+    const deliveredOrdersEl = document.getElementById('deliveredOrders');
+    const totalSalesEl = document.getElementById('totalSales');
+    const enableSoundBtn = document.getElementById('enableSoundBtn');
+
+    let soundEnabled = false;
+    let knownOrderIds = new Set();
+    let firstLoad = true;
+
+    function formatNaira(amount) {
+      return new Intl.NumberFormat('en-NG', { style:'currency', currency:'NGN', maximumFractionDigits:0 }).format(Number(amount || 0));
+    }
+
+    function formatDate(value) { return new Date(value).toLocaleString(); }
+    function badge(status) { const safe = status || 'pending'; return `<span class="badge status-${safe}">${safe}</span>`; }
+    function receiptBadge(receiptCheck) {
+      const status = receiptCheck?.status || 'not_required';
+      const label = status === 'validated' ? 'Validated' : status.replace(/_/g, ' ');
+      const css = status === 'validated' ? 'receipt-valid' : `receipt-${status}`;
+      return `<span class="badge ${css}">${label}</span>`;
+    }
+    function beep() { if (!soundEnabled) return; const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.type='sine'; osc.frequency.setValueAtTime(900, ctx.currentTime); gain.gain.setValueAtTime(0.18, ctx.currentTime); osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.25); }
+    enableSoundBtn.addEventListener('click', () => { soundEnabled = true; beep(); enableSoundBtn.textContent = 'Sound Enabled'; enableSoundBtn.disabled = true; });
+
+    async function updateOrderStatus(orderId, status) {
+      const response = await fetch(`/api/orders/${orderId}/status`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status }) });
+      const data = await parseApiResponse(response, 'Request failed.');
+      if (!response.ok) throw new Error(data.message || 'Could not update status.');
+    }
+
+    async function loadSummary() {
+      const response = await fetch(apiUrl('/api/branch/branch-1/summary'));
+      const data = await parseApiResponse(response, 'Request failed.');
+      totalOrdersEl.textContent = data.totalOrders;
+      pendingOrdersEl.textContent = data.pendingOrders;
+      preparingOrdersEl.textContent = data.preparingOrders;
+      deliveredOrdersEl.textContent = data.deliveredOrders;
+      totalSalesEl.textContent = formatNaira(data.totalSales);
+    }
+
+    async function loadOrders() {
+      const response = await fetch(apiUrl('/api/branch/branch-1/orders'));
+      const orders = await parseApiResponse(response, 'Could not load orders.');
+      const currentIds = new Set(orders.map(order => String(order.id)));
+      if (!firstLoad) {
+        for (const order of orders) {
+          if (!knownOrderIds.has(String(order.id))) { beep(); break; }
+        }
+      }
+      knownOrderIds = currentIds;
+      firstLoad = false;
+
+      if (!orders.length) {
+        ordersTableBody.innerHTML = '<tr><td colspan="16">No orders yet.</td></tr>';
+        return;
+      }
+
+      ordersTableBody.innerHTML = orders.map(order => `
+        <tr>
+          <td>${order.id}</td>
+          <td>${order.customerName || '-'}</td>
+          <td>${order.customerPhone || '-'}</td>
+          <td>${order.customerAccountName || '-'}</td>
+          <td>${order.orderType || '-'}</td>
+          <td>${order.paymentMethod || '-'}</td>
+          <td class="wrap">${order.deliveryAddress || '-'}</td>
+          <td>${order.deliveryArea || '-'}</td>
+          <td class="wrap">${order.orderNote || '-'}</td>
+          <td class="items-cell">${(order.cart || []).map(item => `<div>${item.name} x${item.quantity}</div>`).join('') || '-'}</td>
+          <td>${formatNaira(order.finalTotal || order.totalAmount || 0)}</td>
+          <td class="receipt-note">${receiptBadge(order.receiptCheck)}<div style="margin-top:6px;white-space:normal;">${order.receiptCheck?.message || '-'}</div></td>
+          <td>${badge(order.status)}</td>
+          <td>
+            <select data-id="${order.id}" class="status-select">
+              <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparing</option>
+              <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
+              <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+              <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+          </td>
+          <td>${order.receiptUrl ? `<a href="${order.receiptUrl}" target="_blank">View Receipt</a>` : 'No Receipt'}</td>
+          <td>${formatDate(order.createdAt)}</td>
+        </tr>
+      `).join('');
+
+      document.querySelectorAll('.status-select').forEach(select => {
+        select.addEventListener('change', async () => {
+          try { await updateOrderStatus(select.dataset.id, select.value); await refreshAll(); }
+          catch (error) { alert(error.message); }
+        });
+      });
+    }
+
+    async function refreshAll() { await Promise.all([loadSummary(), loadOrders()]); }
+    refreshAll();
+    setInterval(refreshAll, 5000);
+  </script>
+</body>
+</html>
