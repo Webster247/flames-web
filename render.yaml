@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: food-order-system
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
